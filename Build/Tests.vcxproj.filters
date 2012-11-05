@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="TestUtil">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="TestCore">
+      <UniqueIdentifier>{259125f8-d64d-4e88-ab19-2fc1caf7dbba}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Src\Tests\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Tests\TestDependencyDiff.cpp">
+      <Filter>TestCore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Tests\TestDependencyView.cpp">
+      <Filter>TestCore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Tests\TestFunctional.cpp">
+      <Filter>TestCore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Tests\TestMSVCDependencyParser.cpp">
+      <Filter>TestCore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Tests\TestFile.cpp">
+      <Filter>TestUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Tests\TestFileDictionary.cpp">
+      <Filter>TestUtil</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
