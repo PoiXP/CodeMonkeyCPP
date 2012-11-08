@@ -1,8 +1,6 @@
+#include "Precompile.h"
+
 #include "Utils/Log.h"
-
-#define LOGOG_LEVEL LOGOG_LEVEL_ALL
-
-#include <logog.hpp>
 
 namespace
 {
@@ -44,19 +42,26 @@ void Log::Shutdown()
 
 void Log::LogMessage(Log::LogLevel level, const char* format, ...)
 {
+  va_list args;
+  va_start(args, format);
+  LogMessage_va(level, format, args);
+  va_end(args);
+}
+
+void Log::LogMessage_va(Log::LogLevel level, const char* format, va_list args)
+{
   if (level < s_LogLevel)
   {
     return;
   }
-  logog::String message(format);
-  va_list args;
-  va_start(args, format);
+  logog::String message("");
   message.format_va(format, args);
-  va_end(args);
+
   switch(level)
   {
   case e_LogInfo:     INFO(message); break;
   case e_LogWarning:  WARN(message); break;
   case e_LogError:    ERR(message); break;
   }
+
 }

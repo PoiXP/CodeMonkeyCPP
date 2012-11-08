@@ -4,8 +4,11 @@
 #include "Core\DependencyDiff.h"
 #include "Utils\FileDictionary.h"
 #include "Utils\Log.h"
+#include <boost/program_options.hpp>
+#include <fstream>
+#include <cstdarg>
 
-using namespace std;
+namespace po = boost::program_options;
 
 enum Error
 {
@@ -15,37 +18,84 @@ enum Error
   e_Error_Parse_Failed = -2,
 };
 
+class Output
+{
+public:
+  virtual ~Output() {}
+  virtual void Print(const char* format, ...) = 0;
+};
+
+class LogOutput : public Output
+{
+public:
+  void Print(const char* format, ...)
+  {
+    va_list args;
+    va_start(args, format);
+    Log::LogMessage_va(Log::e_LogInfo, format, args);
+    va_end(args);
+  }
+};
+
+class FileOutput : public Output
+{
+public:
+  FileOutput() {}
+  ~FileOutput()
+  { 
+    fclose(m_File);
+  }
+  bool Open(const char* filename)
+  {
+    fopen_s(&m_File, filename, "w");
+    return m_File != 0;
+  }
+  void Print(const char* format, ...)
+  {
+    va_list args;
+    va_start(args, format);
+    vfprintf_s(m_File, format, args);
+    va_end(args);
+    fprintf(m_File, "\n");
+  }
+private:
+  FILE* m_File;
+};
+
+static Output* g_Output = NULL;
+#define OUTPUT(...) g_Output->Print(##__VA_ARGS__);
+
 void PrintDiff(const Diff& diff, FileDictionary& dict)
 {
-  LOG_INFO("");
-  LOG_INFO("New dependencies : ");
+  OUTPUT("");
+  OUTPUT("New dependencies : ");
   for (auto i = diff.m_Added.begin(); i != diff.m_Added.end(); ++i)
   {
     std::string fromFile, toFile;
-    LOG_INFO("\t%5.0lf(%u) %s -> %s \n", i->weight, i->count, dict.GetFileName(i->fromFile, fromFile).c_str(), dict.GetFileName(i->toFile, toFile).c_str());
+    OUTPUT("\t%5.0lf(%u) %s -> %s \n", i->weight, i->count, dict.GetFileName(i->fromFile, fromFile).c_str(), dict.GetFileName(i->toFile, toFile).c_str());
   }
-  LOG_INFO("");
-  LOG_INFO("Removed dependencies : ");
+  OUTPUT("");
+  OUTPUT("Removed dependencies : ");
   for (auto i = diff.m_Removed.begin(); i != diff.m_Removed.end(); ++i)
   {
     std::string fromFile, toFile;
-    LOG_INFO("\t%5.0lf(%u) %s -> %s\n",  i->weight, i->count, dict.GetFileName(i->fromFile, fromFile).c_str(), dict.GetFileName(i->toFile, toFile).c_str());
+    OUTPUT("\t%5.0lf(%u) %s -> %s\n",  i->weight, i->count, dict.GetFileName(i->fromFile, fromFile).c_str(), dict.GetFileName(i->toFile, toFile).c_str());
   }
-  LOG_INFO("");
-  LOG_INFO("Increased weight : ");
+  OUTPUT("");
+  OUTPUT("Increased weight : ");
   for (auto i = diff.m_Increased.begin(); i != diff.m_Increased.end(); ++i)
   {
     std::string fromFile;
     LOG_INFO("\t%5.0lf %s\n",  i->weight, dict.GetFileName(i->fromFile, fromFile).c_str());
   }
-  LOG_INFO("");
-  LOG_INFO("Decreased weight : ");
+  OUTPUT("");
+  OUTPUT("Decreased weight : ");
   for (auto i = diff.m_Decreased.end(); i != diff.m_Decreased.end(); ++i)
   {
     std::string fromFile;
-    LOG_INFO("\t%5.0lf %s\n",  i->weight, dict.GetFileName(i->fromFile, fromFile).c_str());
+    OUTPUT("\t%5.0lf %s\n",  i->weight, dict.GetFileName(i->fromFile, fromFile).c_str());
   }
-  LOG_INFO("");
+  OUTPUT("");
 }
 
 void PrintNode(const DependencyGraph::Node* node, const FileDictionary& dict, unsigned int indent)
@@ -53,7 +103,7 @@ void PrintNode(const DependencyGraph::Node* node, const FileDictionary& dict, un
   char format[64];
   sprintf_s(format, sizeof(format), "%%%ds%%s", 2*indent);
   std::string s;
-  LOG_INFO(format, "", dict.GetFileName(node->GetData().fileHandle, s).c_str());
+  OUTPUT(format, "", dict.GetFileName(node->GetData().fileHandle, s).c_str());
 
   for (unsigned int i=0u; i < node->GetChildren().GetCount(); i++)
   {
@@ -63,40 +113,108 @@ void PrintNode(const DependencyGraph::Node* node, const FileDictionary& dict, un
 
 int Run(int ArgCount, char** Args)
 {
-  if (ArgCount < 3)
+  /* 
+    { (print in_file) | (diff in_file prev_file) | (help) } [--out=file_out]
+  */
+  po::positional_options_description positionOptions;
+  positionOptions.add("command", 1);
+  positionOptions.add("in_file", 1);
+  positionOptions.add("prev_file", 1);
+
+  po::options_description options("Allowed options");
+  options.add_options()
+    ("help", "print help message")
+    ("command", po::value<std::string>(), "Command name {print, diff}. [Positional]")
+    ("in_file", po::value<std::string>(), "A dependency file to analyze. [Positional]")
+    ("prev_file", po::value<std::string>(), "A dependency file to diff with. [Positional]")
+    ("out", po::value<std::string>(), "redirect output into the file");
+
+  po::variables_map vm;
+  try
   {
-    LOG_ERROR("Invalid arguments count: %d", ArgCount);
+    po::store(po::command_line_parser(ArgCount, Args). options(options).positional(positionOptions).run(), vm);
+    po::notify(vm);
+  }
+  catch(po::error& genericError)
+  {
+    LOG_ERROR("Exception: %s", genericError.what());
     return e_Error_InvalidParameters;
   }
-  DependencyGraph newDependencies, oldDependencies;
-  FileDictionary dictonary(FileDictionary::e_Compare_NoCase, 512);
-  MSVCDependencyParser parser;
-  int parseValue = parser.ParseDenendencies(Args[1], newDependencies, dictonary);
-  if (parseValue != MSVCDependencyParser::e_OK)
-  {
-    LOG_ERROR("Not able to parse: %s error code: %d", Args[1], parseValue);
-    return e_Error_Parse_Failed;
-  }
-  if (strcmp(Args[2],"print") ==0)
-  {
-    PrintNode(newDependencies.GetHead(), dictonary, 0u);
-    return e_Success;
-  }
-  if (parser.ParseDenendencies(Args[2], oldDependencies, dictonary) != MSVCDependencyParser::e_OK)
-  {
-    LOG_ERROR("Not able to parse: %s error code: %d", Args[2], parseValue);
-    return e_Error_Parse_Failed;
-  }
 
-  GroupedDependencyGraph newGroupedGraph(newDependencies.GetNodeCount()), oldGroupedGraph(oldDependencies.GetNodeCount());
-  DependencyView::Build(newDependencies, dictonary, DependencyView::e_FilesCount, newGroupedGraph);
-  DependencyView::Build(oldDependencies, dictonary, DependencyView::e_FilesCount, oldGroupedGraph);
-  Diff diff;
-  DependencyDiff::MakeDiff(newGroupedGraph, oldGroupedGraph, diff);
+  if (vm.count("command"))
+  {
+    
+    if (vm.count("out"))
+    {
+      FileOutput* output = new FileOutput();
+      if (output->Open(vm["out"].as<std::string>().c_str()))
+      {
+        g_Output = output;
+      }
+      else
+      {
+        delete output;
+        LOG_ERROR("Can't open open file: %s", vm["out"].as<std::string>())
+        return e_Error_InvalidParameters;
+      }
+    }
+    else
+    {
+      g_Output = new LogOutput;
+    }
 
-  PrintDiff(diff, dictonary);
+    std::string commandName = vm["command"].as<std::string>();
+    if (commandName == "print")
+    {
+      FileDictionary dictonary(FileDictionary::e_Compare_NoCase, 512);
+      std::string fileName = vm["in_file"].as<std::string>();
+      DependencyGraph dependencies;
+      MSVCDependencyParser parser;
+      int parseValue = parser.ParseDenendencies(fileName.c_str(), dependencies, dictonary);
+      if (parseValue != MSVCDependencyParser::e_OK)
+      {
+        LOG_ERROR("Not able to parse: %s error code: %d", fileName.c_str(), parseValue);
+        return e_Error_Parse_Failed;
+      }
+      PrintNode(dependencies.GetHead(), dictonary, 0u);
+      return e_Success;
+    }
+    else if (commandName == "diff")
+    {
+      std::string fileName = vm["in_file"].as<std::string>();
+      std::string prevFileName = vm["prev_file"].as<std::string>();
 
-  return (diff.m_Added.empty() && diff.m_Removed.empty()) ? e_Success : e_Success_Has_Diff;
+      DependencyGraph newDependencies, oldDependencies;
+      FileDictionary dictonary(FileDictionary::e_Compare_NoCase, 512);
+      MSVCDependencyParser parser;
+      int parseValue = parser.ParseDenendencies(fileName.c_str(), newDependencies, dictonary);
+      if (parseValue != MSVCDependencyParser::e_OK)
+      {
+        LOG_ERROR("Not able to parse: %s error code: %d", fileName.c_str(), parseValue);
+        return e_Error_Parse_Failed;
+      }
+      if (parser.ParseDenendencies(prevFileName.c_str(), oldDependencies, dictonary) != MSVCDependencyParser::e_OK)
+      {
+        LOG_ERROR("Not able to parse: %s error code: %d", prevFileName.c_str(), parseValue);
+        return e_Error_Parse_Failed;
+      }
+
+      GroupedDependencyGraph newGroupedGraph(newDependencies.GetNodeCount()), oldGroupedGraph(oldDependencies.GetNodeCount());
+      DependencyView::Build(newDependencies, dictonary, DependencyView::e_FilesCount, newGroupedGraph);
+      DependencyView::Build(oldDependencies, dictonary, DependencyView::e_FilesCount, oldGroupedGraph);
+      Diff diff;
+      DependencyDiff::MakeDiff(newGroupedGraph, oldGroupedGraph, diff);
+
+      PrintDiff(diff, dictonary);
+
+      return (diff.m_Added.empty() && diff.m_Removed.empty()) ? e_Success : e_Success_Has_Diff;
+    }
+    LOG_ERROR("Unkown command: %s", commandName.c_str());
+  }
+  std::ostringstream s;
+  options.print(s);
+  LOG_INFO( s.str().c_str() );
+  return vm.count("help") ? e_Success : e_Error_InvalidParameters;
 }
 
 int main(int ArgCount, char** Args)
@@ -105,6 +223,7 @@ int main(int ArgCount, char** Args)
   LOG_INFO("Application started");
   int returnValue = Run(ArgCount, Args);
   Log::Shutdown();
+  delete g_Output;
 
   return returnValue;
 }

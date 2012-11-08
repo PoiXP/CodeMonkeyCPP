@@ -17,6 +17,7 @@ namespace Log
   void Shutdown();
 
   void LogMessage(LogLevel level, const char* format, ...);
+  void LogMessage_va(LogLevel level, const char* format, va_list args);
 }
 
 #define LOG_INFO(...)     Log::LogMessage(Log::e_LogInfo,    ##__VA_ARGS__ );
