@@ -57,14 +57,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>..\Obj\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>D:\Project\antons\CodeMonkey\Include;D:\Project\antons\External\boost\1.46.1;$(IncludePath)</IncludePath>
+    <IncludePath>..\\Include;..\..\External\boost\1.46.1;$(IncludePath)</IncludePath>
     <OutDir>..\Bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>..\Obj\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>%EXTERNALLIBS%\boost-1.42.0\;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(LibraryPath);$(SolutionDir)3d party\boost\boost_1_46_1\lib;</LibraryPath>
-    <IncludePath>D:\Project\antons\CodeMonkey\Include;D:\Project\antons\External\boost\1.46.1;$(IncludePath)</IncludePath>
+    <IncludePath>..\\Include;..\..\External\boost\1.46.1;$(IncludePath)</IncludePath>
     <OutDir>..\Bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

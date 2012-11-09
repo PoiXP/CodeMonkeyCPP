@@ -1,6 +1,6 @@
-#include <UnitTest++\src\UnitTest++.h>
-#include <Core/DependencyDiff.h>
-#include <Core/DependencyView.h>
+#include "Precompile.h"
+#include "Core/DependencyDiff.h"
+#include "Core/DependencyView.h"
 
 SUITE(TestDependencyDiff)
 {

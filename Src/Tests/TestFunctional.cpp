@@ -1,9 +1,8 @@
-#include <UnitTest++\src\UnitTest++.h>
-#include <Core/MSVCDependencyParser.h>
-#include <Core/DependencyView.h>
-#include <Utils/FileDictionary.h>
-#include <Core/DependencyDiff.h>
-#include <fstream>
+#include "Precompile.h"
+#include "Core/MSVCDependencyParser.h"
+#include "Core/DependencyView.h"
+#include "Utils/FileDictionary.h"
+#include "Core/DependencyDiff.h"
 
 SUITE(FunctionalTest)
 {

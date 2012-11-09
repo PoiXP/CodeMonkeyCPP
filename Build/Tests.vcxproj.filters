@@ -35,5 +35,13 @@
     <ClCompile Include="..\Src\Tests\TestFileDictionary.cpp">
       <Filter>TestUtil</Filter>
     </ClCompile>
+    <ClCompile Include="..\Src\Tests\Precompile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Src\Tests\Precompile.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

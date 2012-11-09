@@ -1,3 +1,4 @@
+#include "Precompile.h"
 #include "Utils/FileDictionary.h"
 
 FileDictionary::FileDictionary(FileDictionary::CompareType compareType, unsigned int dictionarySize)

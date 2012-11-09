@@ -1,13 +1,9 @@
+#include "Precompile.h"
 #include "Core/MSVCDependencyParser.h"
 #include "Core/DependencyGraph.h"
 #include "Utils/File.h"
 #include "Utils/FileDictionary.h"
 #include "Utils/Log.h"
-
-#include <boost/regex.hpp>
-#include <boost/filesystem.hpp>
-#include <string>
-#include <iostream>
 
 MSVCDependencyParser::MSVCDependencyParser()
   : m_CurrentLineIndex(0)

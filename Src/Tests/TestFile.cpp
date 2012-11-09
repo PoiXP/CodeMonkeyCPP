@@ -1,7 +1,4 @@
-#include <UnitTest++\src\UnitTest++.h>
-#include "Utils/File.h"
-#include <boost/filesystem.hpp>
-#include <fstream>
+#include "Precompile.h"
 #include "Utils/File.h"
 
 SUITE(TestFile)

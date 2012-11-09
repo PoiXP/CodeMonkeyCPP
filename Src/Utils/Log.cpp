@@ -1,5 +1,4 @@
 #include "Precompile.h"
-
 #include "Utils/Log.h"
 
 namespace

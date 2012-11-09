@@ -1,5 +1,5 @@
-#include <UnitTest++\src\UnitTest++.h>
-#include <Utils/FileDictionary.h>
+#include "Precompile.h"
+#include "Utils/FileDictionary.h"
 
 SUITE(TestFile)
 {

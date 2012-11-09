@@ -1,4 +1,4 @@
-#include <UnitTest++\src\UnitTest++.h>
+#include "Precompile.h"
 #include "Utils/Log.h"
 
 int RunTests()

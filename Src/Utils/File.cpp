@@ -1,3 +1,4 @@
+#include "Precompile.h"
 #include "Utils/File.h"
 
 File::File()

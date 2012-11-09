@@ -12,6 +12,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Src\Tests\main.cpp" />
+    <ClCompile Include="..\Src\Tests\Precompile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\Src\Tests\TestDependencyDiff.cpp" />
     <ClCompile Include="..\Src\Tests\TestDependencyView.cpp" />
     <ClCompile Include="..\Src\Tests\TestFile.cpp" />
@@ -26,6 +30,9 @@
     <ProjectReference Include="Utils.vcxproj">
       <Project>{3b18f1ae-83c1-40be-8ea3-77e994611a0a}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Src\Tests\Precompile.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E44CDAFC-B5B9-4B77-BD35-35C19DE449C2}</ProjectGuid>
@@ -58,24 +65,24 @@
     <LinkIncremental>true</LinkIncremental>
     <IntDir>..\Obj\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>..\Bin\$(Configuration)\</OutDir>
-    <IncludePath>D:\Project\antons\CodeMonkey\Include;D:\Project\antons\External\UnitTest-Cpp\1.4;D:\Project\antons\External\boost\1.46.1;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Project\antons\External\logog\logog-9f14a8a\lib;D:\Project\antons\External\boost\1.46.1\lib;D:\Project\antons\External\UnitTest-Cpp\1.4\UnitTest++\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\\Include;..\..\External\UnitTest++\1.4;..\..\External\boost\1.46.1;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\External\logog\logog-9f14a8a\lib;..\..\External\boost\1.46.1\lib;..\..\External\UnitTest++\1.4\UnitTest++\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>..\Obj\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>..\Bin\$(Configuration)\</OutDir>
-    <IncludePath>D:\Project\antons\CodeMonkey\Include;D:\Project\antons\External\UnitTest-Cpp\1.4;D:\Project\antons\External\boost\1.46.1;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Project\antons\External\logog\logog-9f14a8a\lib;D:\Project\antons\External\boost\1.46.1\lib;D:\Project\antons\External\UnitTest-Cpp\1.4\UnitTest++\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\\Include;..\..\External\UnitTest++\1.4;..\..\External\boost\1.46.1;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\External\logog\logog-9f14a8a\lib;..\..\External\boost\1.46.1\lib;..\..\External\UnitTest++\1.4\UnitTest++\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeaderFile>Precompile.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -91,13 +98,13 @@ $(TargetName)</Command>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeaderFile>Precompile.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

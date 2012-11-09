@@ -1,8 +1,8 @@
-#include <UnitTest++\src\UnitTest++.h>
-#include <Core/MSVCDependencyParser.h>
-#include <Core/DependencyGraph.h>
-#include <Utils/FileDictionary.h>
-#include <fstream>
+#include "Precompile.h"
+#include "Core/MSVCDependencyParser.h"
+#include "Core/DependencyGraph.h"
+#include "Utils/FileDictionary.h"
+
 
 SUITE(MSVCDependencyParserTest)
 {
