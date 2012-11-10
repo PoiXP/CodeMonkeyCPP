@@ -27,6 +27,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\WhatIBuild\Build\BuildParser.vcxproj">
+      <Project>{22c6b289-ccaa-4a84-8c0d-69e2f6224232}</Project>
+    </ProjectReference>
+    <ProjectReference Include="Utils.vcxproj">
+      <Project>{3b18f1ae-83c1-40be-8ea3-77e994611a0a}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A4982C6C-9202-4E3C-A76B-B12F54326D33}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
