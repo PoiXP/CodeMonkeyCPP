@@ -30,6 +30,9 @@
     <ClInclude Include="..\Include\Core\MSVCDependencyParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Src\Core\Precompile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Src\Core\DependencyDiff.cpp">
@@ -39,6 +42,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\Core\MSVCDependencyParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Core\Precompile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
