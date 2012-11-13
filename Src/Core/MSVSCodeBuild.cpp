@@ -75,10 +75,13 @@ MSVSCodeBuild::~MSVSCodeBuild()
 
 void MSVSCodeBuild::LoadSolution(const char* path)
 {
-  InitializeWhatIBuild();
-  boost::filesystem::path solutionPath = boost::filesystem::absolute(path);
-  m_SolutionPath = solutionPath.normalize().string();
-  WhatIBuild::Parser::ParseVSSolution(m_SolutionPath.c_str(), m_Build);
+  if (path != NULL)
+  {
+    InitializeWhatIBuild();
+    boost::filesystem::path solutionPath = boost::filesystem::absolute(path);
+    m_SolutionPath = solutionPath.normalize().string();
+    WhatIBuild::Parser::ParseVSSolution(m_SolutionPath.c_str(), m_Build);
+  }
 }
 
 void MSVSCodeBuild::CreateMapping(const FileDictionary& dictionary)

@@ -74,7 +74,7 @@
     <IntDir>..\Obj\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>..\Bin\$(Configuration)\</OutDir>
     <IncludePath>..\\Include;..\..\External\UnitTest++\1.4;..\..\External\boost\1.46.1;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\External\logog\logog-9f14a8a\lib;..\..\External\boost\1.46.1\lib;..\..\External\UnitTest++\1.4\UnitTest++\Release;..\..\WhatIBuild\Bin\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\..\External\logog\logog-9f14a8a\lib;..\..\External\boost\1.46.1\lib;..\..\External\UnitTest++\1.4\UnitTest++\Release;..\..\WhatIBuild\Bin\;..\..\External\TinyXML\2-6-2\tinyxml\Releasetinyxml;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -114,7 +114,7 @@ $(TargetName)</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
-      <AdditionalDependencies>logog.Release.lib;UnitTest++.vsnet2005.lib;WhatIBuild.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>logog.Release.lib;UnitTest++.vsnet2005.lib;WhatIBuild.lib;tinyxml.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>cd ..\Bin\$(Configuration)\

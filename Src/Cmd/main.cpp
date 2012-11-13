@@ -2,6 +2,7 @@
 #include "Core\DependencyGraph.h"
 #include "Core\DependencyView.h"
 #include "Core\DependencyDiff.h"
+#include "Core\CodeBuild.h"
 #include "Utils\FileDictionary.h"
 #include "Utils\Log.h"
 #include <boost/program_options.hpp>
@@ -65,49 +66,49 @@ private:
 static Output* g_Output = NULL;
 #define OUTPUT(...) g_Output->Print(##__VA_ARGS__);
 
-void PrintDiff(const Diff& diff, FileDictionary& dict)
+void PrintDiff(const Diff& diff, FileDictionary& dict, const CodeBuild* codeBuild)
 {
   OUTPUT("");
   OUTPUT("New dependencies : ");
   for (auto i = diff.m_Added.begin(); i != diff.m_Added.end(); ++i)
   {
     std::string fromFile, toFile;
-    OUTPUT("\t%5.0lf(%u) %s -> %s \n", i->weight, i->count, dict.GetFileName(i->fromFile, fromFile).c_str(), dict.GetFileName(i->toFile, toFile).c_str());
+    OUTPUT("\t%5.0lf(%u) %s -> %s \n", i->weight, i->count, dict.GetFileName(i->fromFile, fromFile).c_str(), codeBuild->ResolveName(dict, i->toFile, toFile).c_str());
   }
   OUTPUT("");
   OUTPUT("Removed dependencies : ");
   for (auto i = diff.m_Removed.begin(); i != diff.m_Removed.end(); ++i)
   {
     std::string fromFile, toFile;
-    OUTPUT("\t%5.0lf(%u) %s -> %s\n",  i->weight, i->count, dict.GetFileName(i->fromFile, fromFile).c_str(), dict.GetFileName(i->toFile, toFile).c_str());
+    OUTPUT("\t%5.0lf(%u) %s -> %s\n",  i->weight, i->count, dict.GetFileName(i->fromFile, fromFile).c_str(), codeBuild->ResolveName(dict, i->toFile, toFile).c_str());
   }
   OUTPUT("");
   OUTPUT("Increased weight : ");
   for (auto i = diff.m_Increased.begin(); i != diff.m_Increased.end(); ++i)
   {
     std::string fromFile;
-    LOG_INFO("\t%5.0lf %s\n",  i->weight, dict.GetFileName(i->fromFile, fromFile).c_str());
+    LOG_INFO("\t%5.0lf %s\n",  i->weight, codeBuild->ResolveName(dict, i->fromFile, fromFile).c_str());
   }
   OUTPUT("");
   OUTPUT("Decreased weight : ");
   for (auto i = diff.m_Decreased.end(); i != diff.m_Decreased.end(); ++i)
   {
     std::string fromFile;
-    OUTPUT("\t%5.0lf %s\n",  i->weight, dict.GetFileName(i->fromFile, fromFile).c_str());
+    OUTPUT("\t%5.0lf %s\n",  i->weight, codeBuild->ResolveName(dict, i->fromFile, fromFile).c_str());
   }
   OUTPUT("");
 }
 
-void PrintNode(const DependencyGraph::Node* node, const FileDictionary& dict, unsigned int indent)
+void PrintNode(const DependencyGraph::Node* node, const FileDictionary& dict, const CodeBuild* codeBuild, unsigned int indent)
 {
   char format[64];
   sprintf_s(format, sizeof(format), "%%%ds%%s", 2*indent);
   std::string s;
-  OUTPUT(format, "", dict.GetFileName(node->GetData().fileHandle, s).c_str());
+  OUTPUT(format, "", codeBuild->ResolveName(dict, node->GetData().fileHandle, s).c_str());
 
   for (unsigned int i=0u; i < node->GetChildren().GetCount(); i++)
   {
-    PrintNode( node->GetChildren().GetNode(i), dict, indent+1);
+    PrintNode( node->GetChildren().GetNode(i), dict, codeBuild, indent+1);
   }
 }
 
@@ -160,6 +161,11 @@ int Run(int ArgCount, char** Args)
       g_Output = new LogOutput;
     }
 
+    bool hasSolution = vm.count("solution") != 0;
+
+    CodeBuild* build = CodeBuild::Create(CodeBuild::e_MSVSSolution, hasSolution ? 
+                                                                    vm["solution"].as<std::string>().c_str() 
+                                                                    : NULL);
     std::string commandName = vm["command"].as<std::string>();
     if (commandName == "print")
     {
@@ -173,14 +179,11 @@ int Run(int ArgCount, char** Args)
         LOG_ERROR("Not able to parse: %s error code: %d", fileName.c_str(), parseValue);
         return e_Error_Parse_Failed;
       }
-      if (vm.count("solution"))
+      if (hasSolution)
       {
-
+        build->CreateMapping(dictonary);
       }
-      else
-      {
-        PrintNode(dependencies.GetHead(), dictonary, 0u);
-      }
+      PrintNode(dependencies.GetHead(), dictonary, build, 0u);
       return e_Success;
     }
     else if (commandName == "diff")
@@ -209,14 +212,11 @@ int Run(int ArgCount, char** Args)
       Diff diff;
       DependencyDiff::MakeDiff(newGroupedGraph, oldGroupedGraph, diff);
 
-      if (vm.count("solution"))
+      if (hasSolution)
       {
-
+        build->CreateMapping(dictonary);
       }
-      else
-      {
-        PrintDiff(diff, dictonary);
-      }
+      PrintDiff(diff, dictonary, build);
 
       return (diff.m_Added.empty() && diff.m_Removed.empty()) ? e_Success : e_Success_Has_Diff;
     }

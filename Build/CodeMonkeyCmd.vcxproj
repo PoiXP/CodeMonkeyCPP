@@ -42,14 +42,14 @@
     <IntDir>..\Obj\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>..\Bin\</OutDir>
     <IncludePath>..\..\External\boost\1.46.1;..\\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\External\logog\logog-9f14a8a\lib;..\..\External\boost\1.46.1\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\..\External\logog\logog-9f14a8a\lib;..\..\External\boost\1.46.1\lib;..\..\WhatIBuild\Bin\;..\..\External\TinyXML\2-6-2\tinyxml\Releasetinyxml;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>..\Obj\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>..\Bin\</OutDir>
     <IncludePath>..\..\External\boost\1.46.1;..\\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\External\logog\logog-9f14a8a\lib;..\..\External\boost\1.46.1\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\..\External\logog\logog-9f14a8a\lib;..\..\External\boost\1.46.1\lib;..\..\WhatIBuild\Bin\;..\..\External\TinyXML\2-6-2\tinyxml\Releasetinyxml;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -63,7 +63,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>logog.Debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>logog.Debug.lib;WhatIBuild.Debug.lib;tinyxml.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -82,7 +82,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>logog.Release.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>logog.Release.lib;WhatIBuild.lib;tinyxml.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

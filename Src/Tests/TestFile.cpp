@@ -69,15 +69,14 @@ SUITE(TestFile)
     fileStream.close();
 
     CHECK_EQUAL(true, file.Open(filename));
+    std::string line;
     for (int i=0; i < STRING_LENGTH; i++)
     {
-      std::string line;
       file.ReadLine(line);
       CHECK_EQUAL(1, line.length());
       char ch = '0' + ( i % ('Z' - '0' + 1));
       CHECK_EQUAL(ch, line[0]);
     }
-    std::string line;
     file.ReadLine(line);
     CHECK_EQUAL(true, file.EndOfFile());
   }

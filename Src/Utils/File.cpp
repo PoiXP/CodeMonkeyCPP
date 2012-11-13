@@ -26,6 +26,7 @@ bool File::EndOfFile()
 
 void File::ReadLine(std::string& line)
 {
+  line.clear();
   line.reserve(1024);
   ReadLineInternal(line);
 }
