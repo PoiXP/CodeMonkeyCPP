@@ -4,7 +4,6 @@
 namespace FileDictionaryInternal
 {
   static const unsigned int HASH_SIZE = 61;
-  static const unsigned int NO_INDEX  = 0xFFFFFFFF;
 
   char          ConvertToLower(char ch);
   unsigned int  GetHash(std::string::const_iterator from, 
@@ -92,7 +91,7 @@ unsigned int FileDictionaryInternal::GetNodeFirstId(unsigned int nodeId)
 
 // ----------------------------IMPLEMENTATION----------------------------------
 
-FileDictionary::Iterator::Iterator(const FileDictionary& dict, Handle handle)
+FileDictionary::Iterator::Iterator(const FileDictionary& dict, size_t handle)
   : m_Dict(dict)
   , m_Handle(handle)
 {
@@ -103,7 +102,7 @@ FileDictionary::Iterator::~Iterator()
 {
 }
 
-FileDictionary::Handle FileDictionary::Iterator::operator*() const
+size_t FileDictionary::Iterator::operator*() const
 {
   return m_Handle;
 }
@@ -146,23 +145,27 @@ FileDictionary::~FileDictionary()
 
 }
 
-FileDictionary::Handle FileDictionary::MakeHandle(const std::string& filename)
+size_t FileDictionary::MakeHandle(const std::string& filename)
 {
-  return MakeHandleRecursive(filename, filename.begin(), 0u, FileDictionaryInternal::NO_INDEX);
+  return MakeHandleRecursive(filename, filename.begin(), 0u, NO_INDEX);
 }
 
+size_t FileDictionary::FindHandle(const std::string& filename) const
+{
+  return FindHandleRecursive(filename, filename.begin(), 0u, NO_INDEX);
+}
 
-FileDictionary::Handle FileDictionary::MakeHandleRecursive(const std::string& path, std::string::const_iterator start, unsigned int nodeId, unsigned int fromEntryId)
+size_t FileDictionary::FindHandleInternal(const std::string& path, std::string::const_iterator& start, unsigned int nodeId, unsigned int fromEntryId, bool& isLeaf, size_t& lastFoundEntryId, unsigned int& hashId) const
 {
   std::string::const_iterator pos = FileDictionaryInternal::FindDirectoryPos(start, path.end());
-  bool leaf = (pos == path.end());
+  isLeaf = (pos == path.end());
   unsigned int hash = (m_CompareType == e_Compare_NoCase) ? 
                        FileDictionaryInternal::GetHashNoCase(start, pos) : 
                        FileDictionaryInternal::GetHash(start, pos);
-  unsigned int hashId = FileDictionaryInternal::GetNodeFirstId(nodeId) + hash;
-  FileDictionary::Handle foundEntryId = m_HashMap[hashId];
-  FileDictionary::Handle lastFoundEntryId = foundEntryId;
-  while( foundEntryId != FileDictionaryInternal::NO_INDEX )
+  hashId = FileDictionaryInternal::GetNodeFirstId(nodeId) + hash;
+  size_t foundEntryId = m_HashMap[hashId];
+  lastFoundEntryId = NO_INDEX;
+  while( foundEntryId != NO_INDEX )
   {
     bool match = false;
     switch(m_CompareType)
@@ -178,21 +181,48 @@ FileDictionary::Handle FileDictionary::MakeHandleRecursive(const std::string& pa
     lastFoundEntryId = foundEntryId;
     foundEntryId = m_Entries[foundEntryId].nextEntry;
   }
+  start = pos;
+  return foundEntryId;
+}
 
-  if (foundEntryId == FileDictionaryInternal::NO_INDEX)
+size_t FileDictionary::FindHandleRecursive(const std::string& path, std::string::const_iterator& start, unsigned int nodeId, unsigned int fromEntryId) const
+{
+  bool isLeaf;
+  size_t lastFoundEntryId;
+  unsigned int hashId;
+  size_t foundEntryId = FindHandleInternal(path, start, nodeId, fromEntryId, isLeaf, lastFoundEntryId, hashId);
+
+  if (foundEntryId != NO_INDEX)
+  {
+    return isLeaf ? foundEntryId : FindHandleRecursive(path, start + 1, m_Entries[foundEntryId].nodeId, foundEntryId);
+  }
+  else
+  {
+    return NO_INDEX;
+  }
+}
+
+size_t FileDictionary::MakeHandleRecursive(const std::string& path, std::string::const_iterator start, unsigned int nodeId, unsigned int fromEntryId)
+{
+  bool isLeaf;
+  size_t lastFoundEntryId;
+  unsigned int hashId;
+  std::string::const_iterator nextPos = start;
+  size_t foundEntryId = FindHandleInternal(path, nextPos, nodeId, fromEntryId, isLeaf, lastFoundEntryId, hashId);
+  if (foundEntryId == NO_INDEX)
   {
     foundEntryId = m_Entries.size();
 
     m_Entries.push_back(Entry());
     Entry& entry = m_Entries[foundEntryId];
-    entry.nextEntry = FileDictionaryInternal::NO_INDEX;
+    entry.nextEntry = NO_INDEX;
     entry.nodeId = AddNode();
     entry.parentEntry = fromEntryId;
-    entry.isFileNode = leaf;
-    std::string s(start, pos);
+    entry.isFileNode = isLeaf;
+    std::string s(start, nextPos);
     m_Dictionary.push_back(s);
 
-    if (lastFoundEntryId == FileDictionaryInternal::NO_INDEX)
+    if (lastFoundEntryId == NO_INDEX)
     {
       m_HashMap[hashId] = foundEntryId;
     }
@@ -201,31 +231,32 @@ FileDictionary::Handle FileDictionary::MakeHandleRecursive(const std::string& pa
       m_Entries[lastFoundEntryId].nextEntry = foundEntryId;
     }
   }
-  else if(leaf)
+  else if(isLeaf)
   {
     m_Entries[foundEntryId].isFileNode = true;
   }
 
-  if (!leaf)
+  if (!isLeaf)
   {
-    return MakeHandleRecursive(path, pos + 1, m_Entries[foundEntryId].nodeId, foundEntryId);
+    return MakeHandleRecursive(path, nextPos + 1, m_Entries[foundEntryId].nodeId, foundEntryId);
   }
   else
   {
     return foundEntryId;
   }
 }
+
   
 
 unsigned int FileDictionary::AddNode()
 {
-  m_HashMap.insert( m_HashMap.end(), FileDictionaryInternal::HASH_SIZE, FileDictionaryInternal::NO_INDEX);
+  m_HashMap.insert( m_HashMap.end(), FileDictionaryInternal::HASH_SIZE, NO_INDEX);
   return m_IdCounter++;
 }
 
-const std::string& FileDictionary::GetFileName(FileDictionary::Handle handle, std::string& fileName) const
+const std::string& FileDictionary::GetFileName(size_t handle, std::string& fileName) const
 {
-  if (m_Entries[handle].parentEntry != FileDictionaryInternal::NO_INDEX)
+  if (m_Entries[handle].parentEntry != NO_INDEX)
   {
     GetFileName(m_Entries[handle].parentEntry, fileName);
     fileName += '\\' + m_Dictionary[handle];
@@ -237,7 +268,7 @@ const std::string& FileDictionary::GetFileName(FileDictionary::Handle handle, st
   return fileName;
 }
 
-FileDictionary::Handle FileDictionary::GetNextLeafHandle(FileDictionary::Handle handle, bool findFirst) const
+size_t FileDictionary::GetNextLeafHandle(size_t handle, bool findFirst) const
 {
   if (!findFirst)
   {

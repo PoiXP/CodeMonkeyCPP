@@ -43,6 +43,29 @@ SUITE(TestFile)
     CHECK_NODE_NAME("File3.bak", 3u);
   }
 
+  TEST(testFindHandle)
+  {
+    FileDictionary dict(FileDictionary::e_Compare_NoCase, 32u);
+    const char paths[][16] =
+    {
+      "A\\B\\C\\D",
+      "E\\F\\G",
+      "A",
+    };
+    static const size_t HANDLES_COUNT = sizeof(paths) / sizeof(paths[0]);
+    size_t handles[HANDLES_COUNT];
+
+    for (size_t i = 0; i < HANDLES_COUNT; ++i)
+    {
+      handles[i] = dict.MakeHandle(paths[i]);
+    }
+
+    for (size_t i = 0; i < HANDLES_COUNT; ++i)
+    {
+      CHECK_EQUAL(handles[i], dict.FindHandle(paths[i]));    
+    }
+  }
+
   TEST(testIterator_Walk)
   {
     FileDictionary dict(FileDictionary::e_Compare_NoCase, 32u);

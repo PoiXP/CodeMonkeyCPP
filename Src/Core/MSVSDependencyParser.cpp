@@ -1,17 +1,17 @@
 #include "Precompile.h"
-#include "Core/MSVCDependencyParser.h"
+#include "Core/MSVSDependencyParser.h"
 #include "Core/DependencyGraph.h"
 #include "Utils/File.h"
 #include "Utils/FileDictionary.h"
 #include "Utils/Log.h"
 
-MSVCDependencyParser::MSVCDependencyParser()
+MSVSDependencyParser::MSVSDependencyParser()
   : m_CurrentLineIndex(0)
 {
 
 }
 
-MSVCDependencyParser::ParseInfo::ParseInfo()
+MSVSDependencyParser::ParseInfo::ParseInfo()
   : parsed(false)
   , error(false)
   , depthLevel(0)
@@ -20,7 +20,7 @@ MSVCDependencyParser::ParseInfo::ParseInfo()
 
 }
 
-int MSVCDependencyParser::ParseDenendencies(const char* filename, DependencyGraph& builtGraph, FileDictionary& fileDictionary)
+int MSVSDependencyParser::ParseDenendencies(const char* filename, DependencyGraph& builtGraph, FileDictionary& fileDictionary)
 {
   LOG_INFO("Parsing file: %s", filename);
   RemoveThreadingInformationIfNeeded(filename);
@@ -73,7 +73,7 @@ int MSVCDependencyParser::ParseDenendencies(const char* filename, DependencyGrap
       }
       else
       {
-        DependencyGraph::Node* node = ReadNode(builtGraph, fileReader, fileDictionary, 0u);
+        DependencyGraph::Node* node = ReadNode(builtGraph, fileReader, fileDictionary, "LIBRARY\\"+projectName, 0u);
         if (node != NULL)
         {
           builtGraph.AddDependency(libraryNode, node);
@@ -86,7 +86,7 @@ int MSVCDependencyParser::ParseDenendencies(const char* filename, DependencyGrap
   return e_OK;
 }
 
-const std::string& MSVCDependencyParser::GetCurrentLine(File& fileReader)
+const std::string& MSVSDependencyParser::GetCurrentLine(File& fileReader)
 {
   if (m_CurrentLine.empty())
   {
@@ -95,13 +95,13 @@ const std::string& MSVCDependencyParser::GetCurrentLine(File& fileReader)
   }
   return m_CurrentLine;
 }
-void MSVCDependencyParser::GoToNextLine(File& fileReader)
+void MSVSDependencyParser::GoToNextLine(File& fileReader)
 {
   m_CurrentLine = "";
   m_ParsedLine.parsed = false;
 }
 
-const MSVCDependencyParser::ParseInfo& MSVCDependencyParser::ParseCurrentLine()
+const MSVSDependencyParser::ParseInfo& MSVSDependencyParser::ParseCurrentLine()
 {
   if (m_ParsedLine.parsed)
   {
@@ -135,7 +135,7 @@ const MSVCDependencyParser::ParseInfo& MSVCDependencyParser::ParseCurrentLine()
 }
 
 
-DependencyGraph::Node* MSVCDependencyParser::ReadNode(DependencyGraph& graph, File& fileReader, FileDictionary& fileDictionary, unsigned int dependencyLevel)
+DependencyGraph::Node* MSVSDependencyParser::ReadNode(DependencyGraph& graph, File& fileReader, FileDictionary& fileDictionary, const std::string& projectName, unsigned int dependencyLevel)
 {
   while (!fileReader.EndOfFile())
   {
@@ -157,10 +157,17 @@ DependencyGraph::Node* MSVCDependencyParser::ReadNode(DependencyGraph& graph, Fi
     if (parsedData.depthLevel == dependencyLevel)
     {
       NodeData data;
-      data.fileHandle = fileDictionary.MakeHandle(parsedData.filename);
+      if (dependencyLevel == 0)
+      {
+        data.fileHandle = fileDictionary.MakeHandle(projectName + "\\" + parsedData.filename);
+      }
+      else
+      {
+        data.fileHandle = fileDictionary.MakeHandle(parsedData.filename);
+      }
       GoToNextLine(fileReader);
 
-      return MakeNode(data, graph, fileReader, fileDictionary, dependencyLevel);
+      return MakeNode(data, graph, fileReader, fileDictionary, projectName, dependencyLevel);
     }
     else if (parsedData.depthLevel < dependencyLevel)
     {
@@ -181,12 +188,12 @@ DependencyGraph::Node* MSVCDependencyParser::ReadNode(DependencyGraph& graph, Fi
   return NULL;
 }
 
-DependencyGraph::Node* MSVCDependencyParser::MakeNode(const NodeData& data, DependencyGraph& graph, File& fileReader, FileDictionary& fileDictionary, unsigned int dependencyLevel)
+DependencyGraph::Node* MSVSDependencyParser::MakeNode(const NodeData& data, DependencyGraph& graph, File& fileReader, FileDictionary& fileDictionary, const std::string& projectName, unsigned int dependencyLevel)
 {
   DependencyGraph::Node* node = graph.CreateNode(data);
   while(true)
   {
-    DependencyGraph::Node* child = ReadNode(graph, fileReader, fileDictionary, dependencyLevel + 1u);
+    DependencyGraph::Node* child = ReadNode(graph, fileReader, fileDictionary, projectName, dependencyLevel + 1u);
     if (child == NULL)
     {
       break;
@@ -196,7 +203,7 @@ DependencyGraph::Node* MSVCDependencyParser::MakeNode(const NodeData& data, Depe
   return node;
 }
 
-bool MSVCDependencyParser::IsProjectBuildStarted(const std::string& line, std::string& projectName)
+bool MSVSDependencyParser::IsProjectBuildStarted(const std::string& line, std::string& projectName)
 {
   // ------ <Build action> started: Project: <Project_Name>, Configuration: <Configuration> <Platform>
   static boost::regex reProject = boost::regex("^-*.*started: Project:[\\s]*([^,\\s]*), Configuration:.*$");
@@ -210,17 +217,17 @@ bool MSVCDependencyParser::IsProjectBuildStarted(const std::string& line, std::s
   return false;
 }
 
-bool MSVCDependencyParser::IsCompilationStageStarted(const std::string& line)
+bool MSVSDependencyParser::IsCompilationStageStarted(const std::string& line)
 {
   return line == "InitializeBuildStatus:";
 }
 
-bool MSVCDependencyParser::IsCompilationStageOver(const std::string& line)
+bool MSVSDependencyParser::IsCompilationStageOver(const std::string& line)
 {
   return line == "FinalizeBuildStatus:" || line == "PostBuildEvent:";
 }
 
-bool MSVCDependencyParser::ShouldSkipLine(const std::string& line)
+bool MSVSDependencyParser::ShouldSkipLine(const std::string& line)
 {
   return line == "  Generating Code..." || line == "  Compiling...";
 }
@@ -244,7 +251,7 @@ namespace
   }
 }
 
-void MSVCDependencyParser::RemoveThreadingInformationIfNeeded(const char* filename)
+void MSVSDependencyParser::RemoveThreadingInformationIfNeeded(const char* filename)
 {
   File reader;
   if (!reader.Open(filename))

@@ -27,10 +27,16 @@
     <ClInclude Include="..\Include\Core\DependencyView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Core\MSVCDependencyParser.h">
+    <ClInclude Include="..\Src\Core\Precompile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Src\Core\Precompile.h">
+    <ClInclude Include="..\Include\Core\MSVSDependencyParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Core\CodeBuild.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Core\MSVSCodeBuild.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,10 +47,16 @@
     <ClCompile Include="..\Src\Core\DependencyView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\Core\MSVCDependencyParser.cpp">
+    <ClCompile Include="..\Src\Core\Precompile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\Core\Precompile.cpp">
+    <ClCompile Include="..\Src\Core\MSVSDependencyParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Core\CodeBuild.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Core\MSVSCodeBuild.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

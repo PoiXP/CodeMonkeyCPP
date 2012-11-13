@@ -1,3 +1,5 @@
+#ifndef CORE_DEPENDENCY_PARSER
+#define CORE_DEPENDENCY_PARSER
 #pragma once
 
 class DependencyGraph;
@@ -10,3 +12,5 @@ public:
   virtual ~DependencyParser() {}
   virtual int ParseDenendencies(const char* filename, DependencyGraph& builtGraph, FileDictionary& fileDictionary) = 0;
 };
+
+#endif // CORE_DEPENDENCY_PARSER

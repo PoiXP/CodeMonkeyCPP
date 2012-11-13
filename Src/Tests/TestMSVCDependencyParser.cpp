@@ -1,10 +1,10 @@
 #include "Precompile.h"
-#include "Core/MSVCDependencyParser.h"
+#include "Core/MSVSDependencyParser.h"
 #include "Core/DependencyGraph.h"
 #include "Utils/FileDictionary.h"
 
 
-SUITE(MSVCDependencyParserTest)
+SUITE(MSVSDependencyParserTest)
 {
   TEST(testParsing_1)
   {
@@ -48,11 +48,11 @@ SUITE(MSVCDependencyParserTest)
     file << "2>  Finalize_build_step" << std::endl;
     file.close();
 
-    MSVCDependencyParser parser;
+    MSVSDependencyParser parser;
     DependencyGraph depends;
     FileDictionary dict(FileDictionary::e_Compare_NoCase, 32u);
     int code = parser.ParseDenendencies(filename, depends, dict);
-    CHECK_EQUAL(MSVCDependencyParser::e_OK, code);
+    CHECK_EQUAL(MSVSDependencyParser::e_OK, code);
 
     CHECK_EQUAL(2u, depends.GetHead()->GetChildren().GetCount());
     CHECK_EQUAL(0u, depends.GetHead()->GetRefBy().GetCount());
@@ -68,7 +68,7 @@ SUITE(MSVCDependencyParserTest)
     CHECK_NODE(libA, "LIBRARY\\A", 2)
     {
       const DependencyGraph::Node* node1 = libA->GetChildren().GetNode(0u);
-      CHECK_NODE(node1, "1", 2);
+      CHECK_NODE(node1, "LIBRARY\\A\\1", 2);
       {
         const DependencyGraph::Node* nodeA = node1->GetChildren().GetNode(0u);
         CHECK_NODE(nodeA, "A", 2);
@@ -80,7 +80,7 @@ SUITE(MSVCDependencyParserTest)
         CHECK_NODE(nodeD, "D", 0);
       }
       const DependencyGraph::Node* node2 = libA->GetChildren().GetNode(1u);
-      CHECK_NODE(node2, "2", 2);
+      CHECK_NODE(node2, "LIBRARY\\A\\2", 2);
       {
         const DependencyGraph::Node* nodeB = node2->GetChildren().GetNode(0u);
         CHECK_NODE(nodeB, "B", 0);
@@ -94,7 +94,7 @@ SUITE(MSVCDependencyParserTest)
     CHECK_NODE(libB, "LIBRARY\\B", 1)
     {
       const DependencyGraph::Node* node3 = libB->GetChildren().GetNode(0u);;
-      CHECK_NODE(node3, "3", 1);
+      CHECK_NODE(node3, "LIBRARY\\B\\3", 1);
       {
         const DependencyGraph::Node* nodeA = node3->GetChildren().GetNode(0u);
         CHECK_NODE(nodeA, "A", 1);

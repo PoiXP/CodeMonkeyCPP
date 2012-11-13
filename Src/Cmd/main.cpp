@@ -1,4 +1,4 @@
-#include "Core\MSVCDependencyParser.h"
+#include "Core\MSVSDependencyParser.h"
 #include "Core\DependencyGraph.h"
 #include "Core\DependencyView.h"
 #include "Core\DependencyDiff.h"
@@ -113,9 +113,6 @@ void PrintNode(const DependencyGraph::Node* node, const FileDictionary& dict, un
 
 int Run(int ArgCount, char** Args)
 {
-  /* 
-    { (print in_file) | (diff in_file prev_file) | (help) } [--out=file_out]
-  */
   po::positional_options_description positionOptions;
   positionOptions.add("command", 1);
   positionOptions.add("in_file", 1);
@@ -127,6 +124,7 @@ int Run(int ArgCount, char** Args)
     ("command", po::value<std::string>(), "Command name {print, diff}. [Positional]")
     ("in_file", po::value<std::string>(), "A dependency file to analyze. [Positional]")
     ("prev_file", po::value<std::string>(), "A dependency file to diff with. [Positional]")
+    ("solution", po::value<std::string>(), "Visual Studio 2010 solution file")
     ("out", po::value<std::string>(), "redirect output into the file");
 
   po::variables_map vm;
@@ -143,7 +141,6 @@ int Run(int ArgCount, char** Args)
 
   if (vm.count("command"))
   {
-    
     if (vm.count("out"))
     {
       FileOutput* output = new FileOutput();
@@ -169,14 +166,21 @@ int Run(int ArgCount, char** Args)
       FileDictionary dictonary(FileDictionary::e_Compare_NoCase, 512);
       std::string fileName = vm["in_file"].as<std::string>();
       DependencyGraph dependencies;
-      MSVCDependencyParser parser;
+      MSVSDependencyParser parser;
       int parseValue = parser.ParseDenendencies(fileName.c_str(), dependencies, dictonary);
-      if (parseValue != MSVCDependencyParser::e_OK)
+      if (parseValue != MSVSDependencyParser::e_OK)
       {
         LOG_ERROR("Not able to parse: %s error code: %d", fileName.c_str(), parseValue);
         return e_Error_Parse_Failed;
       }
-      PrintNode(dependencies.GetHead(), dictonary, 0u);
+      if (vm.count("solution"))
+      {
+
+      }
+      else
+      {
+        PrintNode(dependencies.GetHead(), dictonary, 0u);
+      }
       return e_Success;
     }
     else if (commandName == "diff")
@@ -186,14 +190,14 @@ int Run(int ArgCount, char** Args)
 
       DependencyGraph newDependencies, oldDependencies;
       FileDictionary dictonary(FileDictionary::e_Compare_NoCase, 512);
-      MSVCDependencyParser parser;
+      MSVSDependencyParser parser;
       int parseValue = parser.ParseDenendencies(fileName.c_str(), newDependencies, dictonary);
-      if (parseValue != MSVCDependencyParser::e_OK)
+      if (parseValue != MSVSDependencyParser::e_OK)
       {
         LOG_ERROR("Not able to parse: %s error code: %d", fileName.c_str(), parseValue);
         return e_Error_Parse_Failed;
       }
-      if (parser.ParseDenendencies(prevFileName.c_str(), oldDependencies, dictonary) != MSVCDependencyParser::e_OK)
+      if (parser.ParseDenendencies(prevFileName.c_str(), oldDependencies, dictonary) != MSVSDependencyParser::e_OK)
       {
         LOG_ERROR("Not able to parse: %s error code: %d", prevFileName.c_str(), parseValue);
         return e_Error_Parse_Failed;
@@ -205,7 +209,14 @@ int Run(int ArgCount, char** Args)
       Diff diff;
       DependencyDiff::MakeDiff(newGroupedGraph, oldGroupedGraph, diff);
 
-      PrintDiff(diff, dictonary);
+      if (vm.count("solution"))
+      {
+
+      }
+      else
+      {
+        PrintDiff(diff, dictonary);
+      }
 
       return (diff.m_Added.empty() && diff.m_Removed.empty()) ? e_Success : e_Success_Has_Diff;
     }

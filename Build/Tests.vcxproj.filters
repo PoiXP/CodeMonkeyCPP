@@ -38,6 +38,9 @@
     <ClCompile Include="..\Src\Tests\Precompile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Src\Tests\TestCodeBuild.cpp">
+      <Filter>TestCore</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Src\Tests\Precompile.h">

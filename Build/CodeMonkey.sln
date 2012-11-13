@@ -13,8 +13,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Utils", "Utils.vcxproj", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mocs", "Mocs.vcxproj", "{E6689A9F-7F69-4C08-943C-FFD1ECA78FCD}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BuildParser", "..\..\WhatIBuild\Build\BuildParser.vcxproj", "{22C6B289-CCAA-4A84-8C0D-69E2F6224232}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -45,10 +43,6 @@ Global
 		{E6689A9F-7F69-4C08-943C-FFD1ECA78FCD}.Debug|Win32.Build.0 = Debug|Win32
 		{E6689A9F-7F69-4C08-943C-FFD1ECA78FCD}.Release|Win32.ActiveCfg = Release|Win32
 		{E6689A9F-7F69-4C08-943C-FFD1ECA78FCD}.Release|Win32.Build.0 = Release|Win32
-		{22C6B289-CCAA-4A84-8C0D-69E2F6224232}.Debug|Win32.ActiveCfg = Debug|Win32
-		{22C6B289-CCAA-4A84-8C0D-69E2F6224232}.Debug|Win32.Build.0 = Debug|Win32
-		{22C6B289-CCAA-4A84-8C0D-69E2F6224232}.Release|Win32.ActiveCfg = Release|Win32
-		{22C6B289-CCAA-4A84-8C0D-69E2F6224232}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

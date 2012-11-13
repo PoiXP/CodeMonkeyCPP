@@ -1,6 +1,6 @@
 #include "Precompile.h"
 
-#include "Core\MSVCDependencyParser.h"
+#include "Core\MSVSDependencyParser.h"
 #include "Core\DependencyGraph.h"
 #include "Core\DependencyView.h"
 #include "Core\DependencyDiff.h"
@@ -342,8 +342,8 @@ void MainWindow::BrowsePath()
 
 void MainWindow::FillInformation(const char* filename)
 {
-  MSVCDependencyParser parser;
-  if (parser.ParseDenendencies(filename, m_DependGraph, m_FileDict) != MSVCDependencyParser::e_OK)
+  MSVSDependencyParser parser;
+  if (parser.ParseDenendencies(filename, m_DependGraph, m_FileDict) != MSVSDependencyParser::e_OK)
   {
     // output error
     return;

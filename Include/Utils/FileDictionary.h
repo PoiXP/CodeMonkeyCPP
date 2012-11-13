@@ -6,21 +6,19 @@
 class FileDictionary
 {
 public:
-  typedef unsigned int Handle;
-  
   class Iterator
   {
   public:
     ~Iterator();
-    Handle     operator*() const;
+    size_t     operator*() const;
     Iterator&  operator++();
     Iterator   operator++(int);
     bool       operator!=(const Iterator& iter) const;
     bool       operator==(const Iterator& iter) const;
   private:
-    Iterator(const FileDictionary& dict, Handle handle);
+    Iterator(const FileDictionary& dict, size_t handle);
     const FileDictionary&   m_Dict;
-    FileDictionary::Handle  m_Handle;
+    size_t                  m_Handle;
     friend class FileDictionary;
   };
 
@@ -30,18 +28,23 @@ public:
     e_Compare_NoCase
   };
 
+  static const unsigned int NO_INDEX  = 0xFFFFFFFF;
+
   FileDictionary(CompareType compareType, unsigned int dictionarySize = 0u);
   ~FileDictionary();
   
-  Handle MakeHandle(const std::string& filename);
-  const std::string& GetFileName(Handle handle, std::string& filename) const;
+  size_t MakeHandle(const std::string& filename);
+  size_t FindHandle(const std::string& filename) const;
+  const std::string& GetFileName(size_t handle, std::string& filename) const;
 
   Iterator Begin() const;
   Iterator End() const;
 private:
 
-  Handle       GetNextLeafHandle(Handle handle, bool findFirst) const;
-  Handle       MakeHandleRecursive(const std::string& path, std::string::const_iterator start, unsigned int nodeId, unsigned int fromEntryId);
+  size_t       GetNextLeafHandle(size_t handle, bool findFirst) const;
+  size_t       FindHandleInternal(const std::string& path, std::string::const_iterator& start, unsigned int nodeId, unsigned int fromEntryId, bool& isLeaf, size_t& lastFoundEntryId, unsigned int& hashId) const;
+  size_t       FindHandleRecursive(const std::string& path, std::string::const_iterator& start, unsigned int nodeId, unsigned int fromEntryId) const;
+  size_t       MakeHandleRecursive(const std::string& path, std::string::const_iterator start, unsigned int nodeId, unsigned int fromEntryId);
   unsigned int AddNode();
 
   struct Entry

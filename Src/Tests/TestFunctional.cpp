@@ -1,5 +1,5 @@
 #include "Precompile.h"
-#include "Core/MSVCDependencyParser.h"
+#include "Core/MSVSDependencyParser.h"
 #include "Core/DependencyView.h"
 #include "Utils/FileDictionary.h"
 #include "Core/DependencyDiff.h"
@@ -85,7 +85,7 @@ SUITE(FunctionalTest)
       file.close();
     }
 
-    MSVCDependencyParser parser;
+    MSVSDependencyParser parser;
     DependencyGraph dependsBefore, dependsAfter;
     FileDictionary dict(FileDictionary::e_Compare_NoCase, 32u);
     parser.ParseDenendencies(beforeFilename, dependsBefore, dict);
@@ -104,17 +104,17 @@ SUITE(FunctionalTest)
     std::string filename;
     CHECK_EQUAL(2u, diff.m_Added.size());
     CHECK_NODE_NAME("LIBRARY\\B", diff.m_Added[0].fromFile);
-    CHECK_NODE_NAME("4", diff.m_Added[0].toFile);
+    CHECK_NODE_NAME("LIBRARY\\B\\4", diff.m_Added[0].toFile);
     CHECK_EQUAL(2.0, diff.m_Added[0].weight);
     CHECK_EQUAL(1u, diff.m_Added[0].count);
-    CHECK_NODE_NAME("1", diff.m_Added[1].fromFile);
+    CHECK_NODE_NAME("LIBRARY\\A\\1", diff.m_Added[1].fromFile);
     CHECK_NODE_NAME("0", diff.m_Added[1].toFile);
     CHECK_EQUAL(1.0, diff.m_Added[1].weight);
     CHECK_EQUAL(1u, diff.m_Added[1].count);
 
     CHECK_EQUAL(2u, diff.m_Removed.size());
     CHECK_NODE_NAME("LIBRARY\\A", diff.m_Removed[0].fromFile);
-    CHECK_NODE_NAME("2", diff.m_Removed[0].toFile);
+    CHECK_NODE_NAME("LIBRARY\\A\\2", diff.m_Removed[0].toFile);
     CHECK_EQUAL(4.0, diff.m_Removed[0].weight);
     CHECK_EQUAL(1, diff.m_Removed[0].count);
     CHECK_NODE_NAME("C", diff.m_Removed[1].fromFile);
