@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <fstream>
+#include <set>
+#include <map>
 #include <UnitTest++\src\UnitTest++.h>
 #include <boost/filesystem.hpp>
 

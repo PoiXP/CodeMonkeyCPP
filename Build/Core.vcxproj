@@ -17,6 +17,7 @@
     <ClInclude Include="..\Include\Core\DependencyParser.h" />
     <ClInclude Include="..\Include\Core\DependencyView.h" />
     <ClInclude Include="..\Include\Core\MSVSDependencyParser.h" />
+    <ClInclude Include="..\Include\Core\ProjectDependencyView.h" />
     <ClInclude Include="..\Src\Core\MSVSCodeBuild.h" />
     <ClInclude Include="..\Src\Core\Precompile.h" />
   </ItemGroup>
@@ -30,6 +31,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Src\Core\ProjectDependencyView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Utils.vcxproj">
